@@ -124,45 +124,59 @@ body::before {
     <audio id="sonidoTecla" src="tecla.mp3"></audio>
 
     <script>
-        const audio = document.getElementById('sonidoTecla');
+    const audio = document.getElementById('sonidoTecla');
 
-        async function enviar() {
-            const entrada = document.getElementById('entrada');
-            const textoDiv = document.getElementById('eco-texto');
-            
-            if (!entrada.value) return;
+    async function enviar() {
+        const entrada = document.getElementById('entrada');
+        const textoDiv = document.getElementById('eco-texto');
+        const valor = entrada.value;
+        
+        // 1. Evitamos enviar si está vacío
+        if (!valor || valor.trim() === "") return;
 
-            // 1. Limpiamos el mensaje anterior
-            textoDiv.innerHTML = "Escuchando el bosque...";
-            
-            // 2. Llamamos a Python
-            const res = await fetch(`http://127.0.0.1:8000/susurrar/${entrada.value}`);
+        // 2. Estado de espera (Limpiamos el mensaje anterior)
+        textoDiv.innerHTML = "Escuchando el bosque...";
+        
+        try {
+            // 3. LLAMADA AL SERVIDOR (IMPORTANTE: Usa tu link de Render aquí)
+            // Cambia 'tu-app-en-render' por el nombre real de tu proyecto
+            const res = await fetch(`https://tu-app-en-render.onrender.com/susurrar/${valor}`);
             const data = await res.json();
             
+            // ✨ LA MAGIA: Limpiamos el cuadro de texto de inmediato
             entrada.value = "";
+            entrada.placeholder = "El secreto ha sido entregado...";
             textoDiv.innerHTML = ""; // Borramos el "Escuchando..."
 
-            // 3. Efecto de "Máquina de escribir"
+            // 4. Efecto de "Máquina de escribir" con la respuesta
             escribirEfecto(data.el_eco_te_dice, textoDiv);
-        }
 
-        function escribirEfecto(texto, elemento) {
-            let i = 0;
-            elemento.innerHTML = "";
-            
-            function tipear() {
-                if (i < texto.length) {
-                    elemento.innerHTML += texto.charAt(i);
-                    // Si tienes el mp3, esto lo hará sonar en cada letra
-                    audio.currentTime = 0; 
-                    audio.play().catch(() => {}); // El catch evita errores si no hay archivo
-                    
-                    i++;
-                    setTimeout(tipear, 50); // Velocidad de escritura (50ms)
-                }
-            }
-            tipear();
+        } catch (error) {
+            textoDiv.innerHTML = "El viento está muy fuerte, el eco se perdió...";
+            console.error("Error de conexión:", error);
         }
-    </script>
+    }
+
+    function escribirEfecto(texto, elemento) {
+        let i = 0;
+        elemento.innerHTML = "";
+        
+        function tipear() {
+            if (i < texto.length) {
+                elemento.innerHTML += texto.charAt(i);
+                
+                // Sonido de tecla (opcional)
+                if (audio) {
+                    audio.currentTime = 0; 
+                    audio.play().catch(() => {}); 
+                }
+                
+                i++;
+                setTimeout(tipear, 50); // Velocidad: 50ms por letra
+            }
+        }
+        tipear();
+    }
+</script>
 </body>
 </html>
