@@ -162,25 +162,22 @@ body::before {
 function escribirEfecto(texto, elemento) {
     let i = 0;
     elemento.innerHTML = "";
-    
-    // Traemos el audio (asegúrate de que el ID coincida con tu HTML)
     const audio = document.getElementById('sonidoTecla');
 
     function tipear() {
         if (i < texto.length) {
-            // 1. Añadimos la letra
             elemento.innerHTML += texto.charAt(i);
             
-            // 2. MAGIA DEL SONIDO:
             if (audio) {
-                audio.pause();           // Pausamos el anterior (por si no terminó)
-                audio.currentTime = 0;   // Lo regresamos al inicio
-                audio.play().catch(e => console.log("Error audio:", e)); 
+                // Clonar el audio permite que suene en móviles sin esperar a que termine el anterior
+                let sonidoHijo = audio.cloneNode();
+                sonidoHijo.volume = 0.5;
+                sonidoHijo.play().catch(e => console.log("Audio bloqueado"));
             }
             
             i++;
-            // 3. Velocidad: 50ms es bueno, si es muy rápido el sonido se satura
-            setTimeout(tipear, 600); 
+            // Bajamos de 600ms a 70ms para que sea fluido
+            setTimeout(tipear, 70); 
         }
     }
     tipear();
