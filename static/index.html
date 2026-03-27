@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <link rel="icon" href="data:,">
     <meta charset="UTF-8">
     <title>KODAMA - El Eco del Bosque</title>
     <style>
@@ -127,56 +128,63 @@ body::before {
     const audio = document.getElementById('sonidoTecla');
 
     async function enviar() {
-        const entrada = document.getElementById('entrada');
-        const textoDiv = document.getElementById('eco-texto');
-        const valor = entrada.value;
-        
-        // 1. Evitamos enviar si está vacío
-        if (!valor || valor.trim() === "") return;
+    const entrada = document.getElementById('entrada');
+    const textoDiv = document.getElementById('eco-texto');
+    const valor = entrada.value;
+    
+    if (!valor || valor.trim() === "") return;
 
-        // 2. Estado de espera (Limpiamos el mensaje anterior)
-        textoDiv.innerHTML = "Escuchando el bosque...";
+    textoDiv.innerHTML = "Escuchando el bosque...";
+
+    // ✨ ESTA ES LA PARTE MÁGICA:
+    // Si estás en tu PC (localhost), usará el servidor local.
+    // Si estás en el celular, usará automáticamente el link de Render.
+    const urlBase = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+                    ? "" 
+                    : "https://kodama-app.onrender.com";
+
+    try {
+        // Usamos la urlBase que detectó el sistema
+        const res = await fetch(`${urlBase}/susurrar/${valor}`);
+        const data = await res.json();
         
-        try {
-            // 3. LLAMADA AL SERVIDOR (IMPORTANTE: Usa tu link de Render aquí)
-            // Cambia 'tu-app-en-render' por el nombre real de tu proyecto
-            const res = await fetch(`https://kodama-app.onrender.com/susurrar/${valor}`);
-            const data = await res.json();
+        entrada.value = "";
+        textoDiv.innerHTML = ""; 
+
+        escribirEfecto(data.el_eco_te_dice, textoDiv);
+
+    } catch (error) {
+        textoDiv.innerHTML = "El viento está muy fuerte...";
+        console.error("Error:", error);
+    }
+}
+
+function escribirEfecto(texto, elemento) {
+    let i = 0;
+    elemento.innerHTML = "";
+    
+    // Traemos el audio (asegúrate de que el ID coincida con tu HTML)
+    const audio = document.getElementById('sonidoTecla');
+
+    function tipear() {
+        if (i < texto.length) {
+            // 1. Añadimos la letra
+            elemento.innerHTML += texto.charAt(i);
             
-            // ✨ LA MAGIA: Limpiamos el cuadro de texto de inmediato
-            entrada.value = "";
-            entrada.placeholder = "El secreto ha sido entregado...";
-            textoDiv.innerHTML = ""; // Borramos el "Escuchando..."
-
-            // 4. Efecto de "Máquina de escribir" con la respuesta
-            escribirEfecto(data.el_eco_te_dice, textoDiv);
-
-        } catch (error) {
-            textoDiv.innerHTML = "El viento está muy fuerte, el eco se perdió...";
-            console.error("Error de conexión:", error);
-        }
-    }
-
-    function escribirEfecto(texto, elemento) {
-        let i = 0;
-        elemento.innerHTML = "";
-        
-        function tipear() {
-            if (i < texto.length) {
-                elemento.innerHTML += texto.charAt(i);
-                
-                // Sonido de tecla (opcional)
-                if (audio) {
-                    audio.currentTime = 0; 
-                    audio.play().catch(() => {}); 
-                }
-                
-                i++;
-                setTimeout(tipear, 50); // Velocidad: 50ms por letra
+            // 2. MAGIA DEL SONIDO:
+            if (audio) {
+                audio.pause();           // Pausamos el anterior (por si no terminó)
+                audio.currentTime = 0;   // Lo regresamos al inicio
+                audio.play().catch(e => console.log("Error audio:", e)); 
             }
+            
+            i++;
+            // 3. Velocidad: 50ms es bueno, si es muy rápido el sonido se satura
+            setTimeout(tipear, 600); 
         }
-        tipear();
     }
+    tipear();
+}
 </script>
 </body>
 </html>
