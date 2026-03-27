@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>KODAMA - El Eco del Bosque</title>
+    <style>
+        body {
+            background-color: #050505;
+            color: #00ffcc;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* El contenedor con brillo de neón */
+        .pantalla {
+            border: 1px solid #00ffcc;
+            padding: 40px;
+            border-radius: 5px;
+            box-shadow: 0 0 30px #00ffcc33;
+            background: rgba(0, 255, 204, 0.02);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+        }
+
+        h1 {
+            letter-spacing: 10px;
+            text-shadow: 0 0 15px #00ffcc;
+            font-size: 2.5rem;
+        }
+
+        input {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #ff00ff;
+            color: #fff;
+            font-size: 1.1rem;
+            padding: 10px;
+            width: 80%;
+            text-align: center;
+            outline: none;
+            margin: 20px 0;
+        }
+
+        button {
+            background: transparent;
+            color: #ff00ff;
+            border: 1px solid #ff00ff;
+            padding: 10px 30px;
+            font-family: 'Courier New';
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background: #ff00ff;
+            color: white;
+            box-shadow: 0 0 20px #ff00ff;
+        }
+
+        #eco-texto {
+            margin-top: 40px;
+            height: 100px; /* Espacio reservado para el mensaje */
+            color: #ffcc00; /* Color ámbar antiguo */
+            font-size: 1.2rem;
+            line-height: 1.5;
+        }
+        /* El palito que parpadea al final del texto */
+#eco-texto::after {
+    content: "|";
+    animation: parpadeo 0.8s infinite;
+    color: #00ffcc;
+}
+
+@keyframes parpadeo {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+    </style>
+</head>
+<body>
+
+    <div class="pantalla">
+        <h1>KODAMA</h1>
+        <p>[ Susurra algo al vacío digital ]</p>
+        
+        <input type="text" id="entrada" placeholder="..." maxlength="100">
+        <br>
+        <button onclick="enviar()">ENVIAR</button>
+
+        <div id="eco-texto"></div>
+    </div>
+
+    <audio id="sonidoTecla" src="tecla.mp3"></audio>
+
+    <script>
+        const audio = document.getElementById('sonidoTecla');
+
+        async function enviar() {
+            const entrada = document.getElementById('entrada');
+            const textoDiv = document.getElementById('eco-texto');
+            
+            if (!entrada.value) return;
+
+            // 1. Limpiamos el mensaje anterior
+            textoDiv.innerHTML = "Escuchando el bosque...";
+            
+            // 2. Llamamos a Python
+            const res = await fetch(`http://127.0.0.1:8000/susurrar/${entrada.value}`);
+            const data = await res.json();
+            
+            entrada.value = "";
+            textoDiv.innerHTML = ""; // Borramos el "Escuchando..."
+
+            // 3. Efecto de "Máquina de escribir"
+            escribirEfecto(data.el_eco_te_dice, textoDiv);
+        }
+
+        function escribirEfecto(texto, elemento) {
+            let i = 0;
+            elemento.innerHTML = "";
+            
+            function tipear() {
+                if (i < texto.length) {
+                    elemento.innerHTML += texto.charAt(i);
+                    // Si tienes el mp3, esto lo hará sonar en cada letra
+                    audio.currentTime = 0; 
+                    audio.play().catch(() => {}); // El catch evita errores si no hay archivo
+                    
+                    i++;
+                    setTimeout(tipear, 50); // Velocidad de escritura (50ms)
+                }
+            }
+            tipear();
+        }
+    </script>
+</body>
+</html>
