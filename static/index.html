@@ -121,7 +121,7 @@ body::before {
         <div id="eco-texto"></div>
     </div>
 
-    <audio id="sonidoTecla" src="tecla.mp3"></audio>
+    <audio id="sonidoTecla" src="static/tecla.mp3">
 
     <script>
     const audio = document.getElementById('sonidoTecla');
@@ -140,7 +140,7 @@ body::before {
         try {
             // 3. LLAMADA AL SERVIDOR (IMPORTANTE: Usa tu link de Render aquí)
             // Cambia 'tu-app-en-render' por el nombre real de tu proyecto
-            const res = await fetch(`https://tu-app-en-render.onrender.com/susurrar/${valor}`);
+            const res = await fetch(`https://kodama-app.onrender.com/susurrar/${valor}`);
             const data = await res.json();
             
             // ✨ LA MAGIA: Limpiamos el cuadro de texto de inmediato
