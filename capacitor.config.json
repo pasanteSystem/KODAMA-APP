@@ -1,5 +1,10 @@
 {
   "appId": "com.suvivorman.kodama",
   "appName": "Kodama",
-  "webDir": "static"
+  "webDir": "static",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "allowNavigation": ["kodama-app.onrender.com"]
+  }
 }
