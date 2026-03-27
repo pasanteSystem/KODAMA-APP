@@ -3,6 +3,7 @@
 <head>
     <link rel="icon" href="data:,">
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>KODAMA - El Eco del Bosque</title>
     <style>
         body {
@@ -15,24 +16,26 @@
             height: 100vh;
             margin: 0;
             overflow: hidden;
+            position: relative;
         }
 
-        /* El contenedor con brillo de neón */
         .pantalla {
             border: 1px solid #00ffcc;
-            padding: 40px;
+            padding: 30px;
             border-radius: 5px;
             box-shadow: 0 0 30px #00ffcc33;
             background: rgba(0, 255, 204, 0.02);
             max-width: 500px;
-            width: 90%;
+            width: 85%;
             text-align: center;
+            z-index: 10;
         }
 
         h1 {
             letter-spacing: 10px;
             text-shadow: 0 0 15px #00ffcc;
-            font-size: 2.5rem;
+            font-size: 2.2rem;
+            margin-bottom: 10px;
         }
 
         input {
@@ -40,9 +43,9 @@
             border: none;
             border-bottom: 2px solid #ff00ff;
             color: #fff;
-            font-size: 1.1rem;
+            font-size: 16px; /* Tamaño 16px evita zoom molesto en móviles */
             padding: 10px;
-            width: 80%;
+            width: 90%;
             text-align: center;
             outline: none;
             margin: 20px 0;
@@ -52,136 +55,133 @@
             background: transparent;
             color: #ff00ff;
             border: 1px solid #ff00ff;
-            padding: 10px 30px;
+            padding: 12px 35px;
             font-family: 'Courier New';
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
+            text-transform: uppercase;
         }
 
-        button:hover {
+        button:active {
             background: #ff00ff;
             color: white;
-            box-shadow: 0 0 20px #ff00ff;
         }
 
         #eco-texto {
-            margin-top: 40px;
-            height: 100px; /* Espacio reservado para el mensaje */
-            color: #ffcc00; /* Color ámbar antiguo */
-            font-size: 1.2rem;
-            line-height: 1.5;
+            margin-top: 30px;
+            height: 120px;
+            color: #ffcc00;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        /* El palito que parpadea al final del texto */
-#eco-texto::after {
-    content: "|";
-    animation: parpadeo 0.8s infinite;
-    color: #00ffcc;
-}
 
-@keyframes parpadeo {
-    0% { opacity: 0; }
-    50% { opacity: 1; }
-    100% { opacity: 0; }
-}
+        #eco-texto::after {
+            content: "|";
+            animation: parpadeo 0.8s infinite;
+            color: #00ffcc;
+        }
 
-/* Efecto de líneas de televisor viejo */
-body::before {
-    content: " ";
-    display: block;
-    position: absolute;
-    top: 0; left: 0; bottom: 0; right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
-                linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    z-index: 2;
-    background-size: 100% 2px, 3px 100%;
-    pointer-events: none;
-}
+        @keyframes parpadeo {
+            0% { opacity: 0; }
+            50% { opacity: 1; }
+            100% { opacity: 0; }
+        }
 
-/* Animación de parpadeo suave para todo el contenedor */
-.pantalla {
-    animation: flicker 0.15s infinite;
-}
+        body::before {
+            content: " ";
+            display: block;
+            position: absolute;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), 
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
 
-@keyframes flicker {
-    0% { opacity: 0.98; }
-    100% { opacity: 1; }
-}
+        .pantalla {
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.98; }
+            100% { opacity: 1; }
+        }
     </style>
 </head>
 <body>
 
     <div class="pantalla">
         <h1>KODAMA</h1>
-        <p>[ Susurra algo al vacío digital ]</p>
+        <p style="font-size: 0.8rem;">[ Susurra algo al vacío digital ]</p>
         
-        <input type="text" id="entrada" placeholder="..." maxlength="100">
+        <input type="text" id="entrada" placeholder="..." maxlength="100" autocomplete="off">
         <br>
         <button onclick="enviar()">ENVIAR</button>
 
         <div id="eco-texto"></div>
     </div>
 
-    <audio id="sonidoTecla" src="static/tecla.mp3">
+    <audio id="sonidoTecla" src="static/tecla.mp3"></audio>
 
     <script>
-    const audio = document.getElementById('sonidoTecla');
-
     async function enviar() {
-    const entrada = document.getElementById('entrada');
-    const textoDiv = document.getElementById('eco-texto');
-    const valor = entrada.value;
-    
-    if (!valor || valor.trim() === "") return;
-
-    textoDiv.innerHTML = "Escuchando el bosque...";
-
-    // ✨ ESTA ES LA PARTE MÁGICA:
-    // Si estás en tu PC (localhost), usará el servidor local.
-    // Si estás en el celular, usará automáticamente el link de Render.
-    const urlBase = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
-                    ? "" 
-                    : "https://kodama-app.onrender.com";
-
-    try {
-        // Usamos la urlBase que detectó el sistema
-        const res = await fetch(`${urlBase}/susurrar/${valor}`);
-        const data = await res.json();
+        const entrada = document.getElementById('entrada');
+        const textoDiv = document.getElementById('eco-texto');
+        const valor = entrada.value.trim();
         
-        entrada.value = "";
-        textoDiv.innerHTML = ""; 
+        if (!valor) return;
 
-        escribirEfecto(data.el_eco_te_dice, textoDiv);
+        textoDiv.innerHTML = "Escuchando el bosque...";
 
-    } catch (error) {
-        textoDiv.innerHTML = "El viento está muy fuerte...";
-        console.error("Error:", error);
-    }
-}
+        // Determinamos la URL correcta
+        const esLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+        const urlBase = esLocal ? "" : "https://kodama-app.onrender.com";
 
-function escribirEfecto(texto, elemento) {
-    let i = 0;
-    elemento.innerHTML = "";
-    const audio = document.getElementById('sonidoTecla');
-
-    function tipear() {
-        if (i < texto.length) {
-            elemento.innerHTML += texto.charAt(i);
+        try {
+            // Añadimos un timestamp para evitar que el celular guarde caché del error anterior
+            const urlFinal = `${urlBase}/susurrar/${encodeURIComponent(valor)}?t=${Date.now()}`;
             
-            if (audio) {
-                // Clonar el audio permite que suene en móviles sin esperar a que termine el anterior
-                let sonidoHijo = audio.cloneNode();
-                sonidoHijo.volume = 0.5;
-                sonidoHijo.play().catch(e => console.log("Audio bloqueado"));
-            }
+            const res = await fetch(urlFinal);
             
-            i++;
-            // Bajamos de 600ms a 70ms para que sea fluido
-            setTimeout(tipear, 70); 
+            if (!res.ok) throw new Error("Servidor no responde");
+
+            const data = await res.json();
+            
+            entrada.value = "";
+            escribirEfecto(data.el_eco_te_dice, textoDiv);
+
+        } catch (error) {
+            textoDiv.innerHTML = "Fallo: El bosque no pudo responder. Revisa tu conexión.";
+            console.error("Error detallado:", error);
         }
     }
-    tipear();
-}
-</script>
+
+    function escribirEfecto(texto, elemento) {
+        let i = 0;
+        elemento.innerHTML = "";
+        const audio = document.getElementById('sonidoTecla');
+
+        function tipear() {
+            if (i < texto.length) {
+                elemento.innerHTML += texto.charAt(i);
+                
+                if (audio) {
+                    let sonidoHijo = audio.cloneNode();
+                    sonidoHijo.volume = 0.3;
+                    sonidoHijo.play().catch(() => {}); 
+                }
+                
+                i++;
+                setTimeout(tipear, 60); 
+            }
+        }
+        tipear();
+    }
+    </script>
 </body>
 </html>
